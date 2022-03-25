@@ -1,0 +1,19 @@
+{
+  "name":"counters",
+  "flat": "25",
+  "resources":[
+      {
+        "name": "water",
+        "water_meter": "51"
+      },
+      {
+        "name": "energy",
+        "energy_day": "52",
+        "energy_night": "53"
+      },
+      {
+        "name": "gas",
+        "gas_meter": "89"
+      }
+  ]
+}

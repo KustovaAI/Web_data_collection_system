@@ -1,0 +1,11 @@
+th {
+  font-weight: normal;
+  color: #080809;
+  padding: 10px 15px;
+}
+td {
+  color: #050505;
+  border-top: 1px solid #d8fddf;
+  padding: 10px 15px;
+}
+tr:nth-child(2n) {background: #6afc60;}

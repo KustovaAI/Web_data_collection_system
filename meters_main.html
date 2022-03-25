@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="table.css" rel="stylesheet" type="text/css">
+    <script>
+        var url1 = 'http://localhost:3000/all_meters';
+        var url2 = "http://localhost:3000/add/";
+        var url3 = "http://localhost:3000/autorization/";
+        var url4 = "http://localhost:3000/registration/";
+        var url5 = "http://localhost:3000/user_meter/";
+        var url6 = "http://localhost:3000/default_file";
+        var url7 = "http://localhost:3000/change_config";
+        var url8 = "http://localhost:3000/list_config";
+        var user = "";
+        var globalCount = 0;
+        var globalId = [];
+        function autorization(url3){
+            function reqListener(event) {
+                var data = JSON.parse(this.responseText);
+                if (data!= "incorrect password" && data != "no such user") {
+                    document.getElementById("table_div").style.display = 'block';
+                    document.getElementById("form").style.display = 'block';
+                    document.getElementById("add").style.display = 'block';
+                    document.getElementById("show").style.display = 'block';
+                    document.getElementById("config").style.display = 'block';
+                    document.getElementById("autorization").style.display = 'none';
+                    readDefaultFile();
+                    user = data;
+                }
+                else alert(data);
+            }
+                var to_send = {
+                    "user_login": document.getElementById("login").value,
+                    "password": document.getElementById("password").value
+                };
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("POST", url3);
+            oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            oReq.send(JSON.stringify(to_send));
+        }
+
+        function registrat(url4){
+            function reqListener(event) {
+                var data = JSON.parse(this.responseText);
+                if (data != "user already exist") {
+                    document.getElementById("table_div").style.display = 'block';
+                    document.getElementById("form").style.display = 'block';
+                    document.getElementById("add").style.display = 'block';
+                    document.getElementById("show").style.display = 'block';
+                    document.getElementById("config").style.display = 'block';
+                    document.getElementById("autorization").style.display = 'none';
+                    readDefaultFile();
+                    user = data;
+                }
+                else alert(data);
+            }
+            var to_send = {
+                "user_login": document.getElementById("login").value,
+                "password": document.getElementById("password").value
+            };
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("POST", url4);
+            oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            oReq.send(JSON.stringify(to_send));
+        }
+
+        function addValues(){
+            var array = [];
+            for (var i = 0; i < globalId.length; i++) {
+                array.push(document.getElementById(globalId[i]).value);
+            }
+            var oReq = new XMLHttpRequest();
+            oReq.open("PUT", url2);
+            oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            oReq.send(JSON.stringify(array));
+            console.log("sended");
+            if (document.getElementById("table_div").style.display != 'none') {
+                console.log(document.getElementById("table_div").style.display);
+                showRows(url1);
+            }
+            globalCount = 0;
+           // globalId = [];
+        }
+        function hide(){
+            document.getElementById("table_div").style.display = 'none';
+        }
+        function showRows(request) {
+            if (user == "root") {
+                showAllRows(url1);
+            } else {
+                function reqListener(event) {
+                    var data = JSON.parse(this.responseText);
+                    var table = document.getElementById("table_data");
+                    table.innerHTML = '';
+                    if (data.length > 0) {
+                        var header = table.createTHead();
+                        var hrow = header.insertRow();
+                        for (var k in data[0]) {
+                            var cell = hrow.insertCell();
+                            cell.innerHTML = k;
+                        }
+
+                    }
+                    document.getElementById("table_div").style.display = 'block';
+                    for (var i = 0; i < data.length; i++) {
+                        var newRow = table.insertRow();
+                        for (j in data[i]) {
+                            var cell = newRow.insertCell();
+                            cell.innerHTML = data[i][j];
+                        }
+                    }
+                }
+
+                var to_send = {
+                    "user": user
+                }
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", reqListener);
+                oReq.open("POST", url5);
+                oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                oReq.send(JSON.stringify(to_send));
+            }
+        }
+
+        function showAllRows(request) {
+            function reqListener(event) {
+                var data = JSON.parse(this.responseText);
+                var table = document.getElementById("table_data");
+                table.innerHTML='';
+                if (data.length > 0) {
+                    var header = table.createTHead();
+                    var hrow = header.insertRow();
+                    for (var k in data[0]) {
+                        var cell = hrow.insertCell();
+                        cell.innerHTML= k;
+                    }
+
+                }
+                document.getElementById("table_div").style.display = 'block';
+                for (var i =0; i<data.length;i++ ){
+                    var newRow = table.insertRow();
+                    for (j in data[i]){
+                        var cell = newRow.insertCell();
+                        cell.innerHTML = data[i][j];
+                    }
+                }
+            }
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", reqListener);
+            oReq.open("GET", request);
+            oReq.send();
+        }
+
+        function createSubFieldset(data) {
+            var fieldset = document.createElement("fieldset");
+            var legend = fieldset.appendChild( document.createElement("legend") );
+            legend.appendChild(document.createTextNode(data.name));
+            var keys = Object.keys(data);
+            var counter = 0;
+            for(var k in data) {
+                if(counter>0) {
+                    fieldset.appendChild(document.createTextNode(keys[counter]));
+                    var input = fieldset.appendChild(document.createElement("input"));
+                    input.type = "text";
+                    input.id = globalCount.toString();
+                    globalCount++;
+                    globalId.push(input.id);
+                }
+                counter+=1;
+            }
+            return fieldset;
+        }
+        function createFieldset(data) {
+            var fieldset = document.createElement("fieldset");
+            fieldset.id = "fieldset";
+            var legend = fieldset.appendChild( document.createElement("legend") );
+            legend.appendChild(document.createTextNode(data.name));
+            var keys = Object.keys(data);
+            fieldset.appendChild(document.createTextNode(keys[1]));
+            var input = fieldset.appendChild( document.createElement("input") );
+            input.type = "text";
+            input.id = globalCount.toString();
+            globalCount++;
+            globalId.push(input.id);
+                    for (var j in data.resources) {
+                        fieldset.appendChild(createSubFieldset(data.resources[j]));
+                    }
+            globalCount = 0;
+            return fieldset;
+        }
+
+
+        function readDefaultFile() {
+            function loader(event) {
+                var data = JSON.parse(this.responseText);
+                var form = document.getElementById("form");
+                var fieldset = createFieldset(data);
+                form.appendChild(fieldset);
+            }
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", loader);
+            oReq.open("GET", url6);
+            oReq.send();
+        }
+        function readFile(file_name) {
+            globalId = [];
+            globalCount = 0;
+            function loader(event) {
+                var data = JSON.parse(this.responseText);
+                var form = document.getElementById("form");
+                var fieldset = createFieldset(data);
+                form.appendChild(fieldset);
+            }
+            document.getElementById("fieldset").remove();
+            var oReq = new XMLHttpRequest();
+            oReq.addEventListener("load", loader);
+            oReq.open("POST", url7);
+            oReq.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            oReq.send(JSON.stringify([file_name]));
+            document.getElementById("table_div").style.display = 'none';
+
+        }
+
+        function downloadFile() {
+            document.getElementById("list").style.display = 'block';
+            function loader(event) {
+                var data = JSON.parse(this.responseText);
+                var list = document.getElementById("list");
+                list.innerHTML='';
+                    item = document.createElement('option');
+                for (var i = 0; i < data.length; i++) {
+                    item.innerHTML = data[i];
+                    list.appendChild(item.cloneNode(true));
+                }
+            }
+                var oReq = new XMLHttpRequest();
+                oReq.addEventListener("load", loader);
+                oReq.open("GET", url8);
+                oReq.send();
+        }
+
+    </script>
+</head>
+<body>
+<div id="autorization"  style="width:380px; padding-left:100px;"> <fieldset style ="background: #d8fcd1">
+    <legend>Введите логин и пароль</legend>
+  <p>  Логин (номер квартиры):  <input type="text" id = "login"> <p> <p>
+    Пароль: <input type="text" id = "password"><br>
+</fieldset><p><p>
+        <input type="button" onclick="autorization(url3)" value="Ввод">
+        <input type="button" onclick="registrat(url4)" value="Зарегистрироваться"> <p> <p>
+</div>
+<div id="form"  style="display: none; width:700px; padding-left:50px;">
+</div>
+
+<div id = "add" style="display: none;padding-left: 50px; padding-top: 25px">
+    <input type="button" onclick="addValues()" value="Внести показания"> <p> <p>
+</div>
+<div id = "show" style="display: none; padding-left: 50px">
+    <input type="button" onclick="showRows(url1)" value="Посмотреть предыдущие показания">
+    <input type="button" onclick="hide()" id="hide_button" value="Свернуть таблицу показаний"> <p> <p>
+
+</div>
+<div id = "config" style="display: none;padding-left: 50px;">
+    <input type="button" onclick="downloadFile()" value="Сменить конфигурацию" >
+    <select id="list" style="display: none; left: 50px;" required="required" multiple form="nubexForm" onclick="readFile(this.value)" >
+    </select>
+</div>
+
+<div id="table_div" style="padding-top: 25px">
+    <table id="table_data">
+    </table>
+</div>
+
+</body>
+</html>

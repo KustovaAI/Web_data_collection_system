@@ -1,0 +1,23 @@
+{
+  "name":"meters",
+  "flat": "25",
+  "resources":[
+      {
+        "name": "temperature",
+        "temperature_day": "30",
+        "temperature_night": "night"
+      },
+      {
+        "name": "pressure",
+        "pressure_meter": "52"
+      },
+      {
+        "name": "tension",
+        "tension_meter": "1000"
+      },
+     {
+       "name": "resistance",
+       "resistance_meter": "89"
+     }
+  ]
+}
